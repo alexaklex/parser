@@ -10,6 +10,7 @@ import random
 import os
 import openpyxl
 from PIL import Image
+import glob
 
 # url = "https://banlanyinxiang.1688.com/page/offerlist.htm"
 
@@ -136,68 +137,67 @@ def get_page_html(html, nfile, name_img=None):
 
 
 def main():
-    d_f    = os.listdir()
-    for i in d_f:
-        formar = i.split('.')
-        print(i)
-        print(formar)
-        if len(formar)>1:
-            if formar[1] == 'xlsx' or formar[1] == 'xls' or formar[1] == 'xlsm' or formar[1] == 'xltm':
-                print("У Вас есть файлы excel  "+"'"+i+"'")
-                name_xls = input("Введите название файла xls: ")
-                edit_excel(name_xls)
+    path_main = os.path.abspath("")
+    xls = glob.glob(path_main+"/*")
+    for i in xls:
+        formar = i.split('/')
+        xls_f = formar[-1].split(".")[1]
+        if xls_f == 'xlsx' or xls_f == 'xls' or xls_f  =='xlsm' or xls_f == 'xltm':
+            print("У Вас есть файлы excel  "+"'"+xls_f+"'")
+            name_xls = input("Введите название файла xls: ")
+            edit_excel(name_xls)
 
 
+        else:
+            folder      = input("Введите название папки для картинок: ")
+            if not os.path.exists(folder):
+                os.makedirs(os.path.abspath(folder))
             else:
-                folder      = input("Введите название папки для картинок: ")
-                if not os.path.exists(folder):
-                    os.makedirs(os.path.abspath(folder))
-                else:
-                    print("Такая папка уже есть")
+                print("Такая папка уже есть")
 
-                # url = "https://hedao3d.1688.com/page/offerlist.htm?"
-                useragents  = ''
-                proxys      = ''
-                file        = input("Введите название файла: ")
-                useragent   = input("Введите юзерагент: ")
-                proxy       = input("Введите от 2-х до 100 прокси ip адрес формата 52.91.226.223:3128: ")
-                useragents  = useragent
-                proxys      = proxy
+            # url = "https://hedao3d.1688.com/page/offerlist.htm?"
+            useragents  = ''
+            proxys      = ''
+            file        = input("Введите название файла: ")
+            useragent   = input("Введите юзерагент: ")
+            proxy       = input("Введите от 2-х до 100 прокси ip адрес формата 52.91.226.223:3128: ")
+            useragents  = useragent
+            proxys      = proxy
 
-                useragent_s = {'User-Agent': ip(useragents)}
-                proxy_s     = {'http': 'http://' + ip(proxys)}
+            useragent_s = {'User-Agent': ip(useragents)}
+            proxy_s     = {'http': 'http://' + ip(proxys)}
 
-                print(useragent_s)
-                print(proxy_s)
+            print(useragent_s)
+            print(proxy_s)
 
 
-                url = input("Введите url формата 'https://hedao3d.1688.com/page/offerlist.html': ")
-                page_input = input("Введите число страниц в магазине: ")
-                page = "?&pageNum="
-                total_page = int(page_input)
-                # proxys = open('proxy.txt').read().split('\n')
+            url = input("Введите url формата 'https://hedao3d.1688.com/page/offerlist.html': ")
+            page_input = input("Введите число страниц в магазине: ")
+            page = "?&pageNum="
+            total_page = int(page_input)
+            # proxys = open('proxy.txt').read().split('\n')
 
-                for i in range(0, total_page):
-                    r = random.randint(2, 9) / 2.5
+            for i in range(0, total_page):
+                r = random.randint(2, 9) / 2.5
 
-                    try:
-                    #     if i >= 3 or i >=6 or i >= 9 or i>= 12:
-                    #         print("Задержка на" + str(r))
-                    #         time.sleep(r)
+                try:
+                #     if i >= 3 or i >=6 or i >= 9 or i>= 12:
+                #         print("Задержка на" + str(r))
+                #         time.sleep(r)
 
-                        print("Начинаем парсить: ")
-                        count = 0
-                        url_gen = url+page+str(i)
-                        get_html2 = get_html(url_gen, useragent_s, proxy_s)
-                        get_page_html(get_html2, file, folder)
-                        time.sleep(r)
-                        pg = i+1
-                        print("Закончили " + str(pg) + " стр.")
+                    print("Начинаем парсить: ")
+                    count = 0
+                    url_gen = url+page+str(i)
+                    get_html2 = get_html(url_gen, useragent_s, proxy_s)
+                    get_page_html(get_html2, file, folder)
+                    time.sleep(r)
+                    pg = i+1
+                    print("Закончили " + str(pg) + " стр.")
 
 
-                    except:
-                        print("Что-то пошло не так, повторите запуск")
-                        input()
+                except:
+                    print("Что-то пошло не так, повторите запуск")
+                    input()
 
 
 
