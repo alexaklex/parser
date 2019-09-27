@@ -11,6 +11,7 @@ import os
 import openpyxl
 from PIL import Image
 import glob
+import re
 
 # url = "https://banlanyinxiang.1688.com/page/offerlist.htm"
 
@@ -137,9 +138,13 @@ def get_page_html(html, nfile, name_img=None):
 
 
 def main():
+    xls_m = []
     path_main = os.path.abspath("")
-    xls = glob.glob(path_main+"/*")
-    for i in xls:
+    xls = glob.glob(path_main+"/*.xlsx")
+    [xls_m.append(i) for i in xls]
+
+
+    for i in xls_m:
         formar = i.split('/')
         xls_f = formar[-1].split(".")[1]
         if xls_f == 'xlsx' or xls_f == 'xls' or xls_f  =='xlsm' or xls_f == 'xltm':
