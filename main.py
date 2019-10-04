@@ -43,6 +43,7 @@ def edit_excel(excel, path="fold"):
         img_m.append(img)
         img.anchor(ws.cell('A' + str(i)))
 
+
     for i in img_m:
         ws.add_image(i)
         xfile.save(excel)
@@ -139,70 +140,86 @@ def get_page_html(html, nfile, name_img=None):
 
 def main():
     xls_m = []
+    img_resize = []
     path_main = os.path.abspath("")
     xls = glob.glob(path_main+"/*.xlsx")
-    [xls_m.append(i) for i in xls]
+    if len(xls) > 0:
+        [xls_m.append(i) for i in xls]
 
 
-    for i in xls_m:
-        formar = i.split('/')
-        xls_f = formar[-1].split(".")[1]
-        if xls_f == 'xlsx' or xls_f == 'xls' or xls_f  =='xlsm' or xls_f == 'xltm':
-            print("У Вас есть файлы excel  "+"'"+xls_f+"'")
-            name_xls = input("Введите название файла xls: ")
-            edit_excel(name_xls)
+        for i in xls_m:
+            formar = i.split('/')
+            xls_f = formar[-1].split(".")[1]
+            if xls_f == 'xlsx' or xls_f == 'xls' or xls_f  =='xlsm' or xls_f == 'xltm':
+                print("У Вас есть файлы excel  "+"'"+xls_f+"'")
+                name_xls = input("Введите название файла xls: ")
+                name_folder = input("Введите название папки img который вы хотет записать в файл: ")
+                folds = os.path.abspath(name_folder)
+                img = os.listdir(folds)
+                print(img)
+                if not os.path.exists(folds+'_resize'):
+                    os.makedirs(os.path.abspath(folds+'_resize'))
+                else:
+                    print("Такая папка уже есть")
+
+                if len(img) > 0:
+                    [img_resize.append(i) for i in img]
+
+                for i in img_resize:
+                    print(i)
+                    resize_image(input_image_path=folds+'/'+i, output_image_path=folds+'_resize'+'/'+i, size=(100, 90))
+                edit_excel(name_xls, folds+'_resize')
+        exit()
+
+    folder      = input("Введите название папки для картинок: ")
+    if not os.path.exists(folder):
+        os.makedirs(os.path.abspath(folder))
+    else:
+        print("Такая папка уже есть")
+
+    # url = "https://hedao3d.1688.com/page/offerlist.htm?"
+    useragents  = ''
+    proxys      = ''
+    file        = input("Введите название файла: ")
+    useragent   = input("Введите юзерагент: ")
+    proxy       = input("Введите от 2-х до 100 прокси ip адрес формата 52.91.226.223:3128: ")
+    useragents  = useragent
+    proxys      = proxy
+
+    useragent_s = {'User-Agent': ip(useragents)}
+    proxy_s     = {'http': 'http://' + ip(proxys)}
+
+    print(useragent_s)
+    print(proxy_s)
 
 
-        else:
-            folder      = input("Введите название папки для картинок: ")
-            if not os.path.exists(folder):
-                os.makedirs(os.path.abspath(folder))
-            else:
-                print("Такая папка уже есть")
+    url = input("Введите url формата 'https://hedao3d.1688.com/page/offerlist.html': ")
+    page_input = input("Введите число страниц в магазине: ")
+    page = "?&pageNum="
+    total_page = int(page_input)
+    # proxys = open('proxy.txt').read().split('\n')
 
-            # url = "https://hedao3d.1688.com/page/offerlist.htm?"
-            useragents  = ''
-            proxys      = ''
-            file        = input("Введите название файла: ")
-            useragent   = input("Введите юзерагент: ")
-            proxy       = input("Введите от 2-х до 100 прокси ip адрес формата 52.91.226.223:3128: ")
-            useragents  = useragent
-            proxys      = proxy
+    for i in range(0, total_page):
+        r = random.randint(2, 9) / 2.5
 
-            useragent_s = {'User-Agent': ip(useragents)}
-            proxy_s     = {'http': 'http://' + ip(proxys)}
+        try:
+        #     if i >= 3 or i >=6 or i >= 9 or i>= 12:
+        #         print("Задержка на" + str(r))
+        #         time.sleep(r)
 
-            print(useragent_s)
-            print(proxy_s)
-
-
-            url = input("Введите url формата 'https://hedao3d.1688.com/page/offerlist.html': ")
-            page_input = input("Введите число страниц в магазине: ")
-            page = "?&pageNum="
-            total_page = int(page_input)
-            # proxys = open('proxy.txt').read().split('\n')
-
-            for i in range(0, total_page):
-                r = random.randint(2, 9) / 2.5
-
-                try:
-                #     if i >= 3 or i >=6 or i >= 9 or i>= 12:
-                #         print("Задержка на" + str(r))
-                #         time.sleep(r)
-
-                    print("Начинаем парсить: ")
-                    count = 0
-                    url_gen = url+page+str(i)
-                    get_html2 = get_html(url_gen, useragent_s, proxy_s)
-                    get_page_html(get_html2, file, folder)
-                    time.sleep(r)
-                    pg = i+1
-                    print("Закончили " + str(pg) + " стр.")
+            print("Начинаем парсить: ")
+            count = 0
+            url_gen = url+page+str(i)
+            get_html2 = get_html(url_gen, useragent_s, proxy_s)
+            get_page_html(get_html2, file, folder)
+            time.sleep(r)
+            pg = i+1
+            print("Закончили " + str(pg) + " стр.")
 
 
-                except:
-                    print("Что-то пошло не так, повторите запуск")
-                    input()
+        except:
+            print("Что-то пошло не так, повторите запуск")
+            input()
 
 
 
