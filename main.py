@@ -53,22 +53,10 @@ def edit_excel(excel, path="fold"):
 def resize_image(input_image_path, output_image_path, size):
     original_image = Image.open(input_image_path)
     width, height = original_image.size
-    # print('The original image size is {wide} wide x {height} '
-    #       'high'.format(wide=width, height=height))
-
     resized_image = original_image.resize(size)
     width, height = resized_image.size
-    # print('The resized image size is {wide} wide x {height} '
-    #       'high'.format(wide=width, height=height))
-    # resized_image.show()
     resized_image.save(output_image_path)
 
-
-    # resize_image(
-    #             input_image_path='1.png',
-    #             output_image_path='caterpillar_small.jpg',
-    #             size=(100, 90)
-    #             )
 
 def write_csv(data, nfile='noname'):
     with open(nfile+'.csv', 'a', encoding="utf-8") as f:
@@ -167,27 +155,27 @@ def main():
 
                 for i in img_resize:
                     print(i)
-                    resize_image(input_image_path=folds+'/'+i, output_image_path=folds+'_resize'+'/'+i, size=(100, 90))
+                    resize_image(input_image_path=folds+'/'+i, output_image_path=folds+'_resize'+'/'+i, size=(70, 70))
                 edit_excel(name_xls, folds+'_resize')
         exit()
 
-    folder      = input("Введите название папки для картинок: ")
+    folder = input("Введите название папки для картинок: ")
     if not os.path.exists(folder):
         os.makedirs(os.path.abspath(folder))
     else:
         print("Такая папка уже есть")
 
     # url = "https://hedao3d.1688.com/page/offerlist.htm?"
-    useragents  = ''
-    proxys      = ''
-    file        = input("Введите название файла: ")
-    useragent   = input("Введите юзерагент: ")
-    proxy       = input("Введите от 2-х до 100 прокси ip адрес формата 52.91.226.223:3128: ")
-    useragents  = useragent
-    proxys      = proxy
+    useragents = ''
+    proxys = ''
+    file = input("Введите название файла: ")
+    useragent = input("Введите юзерагент: ")
+    proxy = input("Введите от 2-х до 100 прокси ip адрес формата 52.91.226.223:3128: ")
+    useragents = useragent
+    proxys = proxy
 
     useragent_s = {'User-Agent': ip(useragents)}
-    proxy_s     = {'http': 'http://' + ip(proxys)}
+    proxy_s = {'http': 'http://' + ip(proxys)}
 
     print(useragent_s)
     print(proxy_s)
