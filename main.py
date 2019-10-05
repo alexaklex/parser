@@ -1,6 +1,5 @@
 #!/usr/bin/python
 #*- coding: utf-8 -*-
-
 import requests
 from bs4 import BeautifulSoup
 from random import choice
@@ -12,8 +11,10 @@ import openpyxl
 from PIL import Image
 import glob
 import re
+from datetime import datetime
 
 # url = "https://banlanyinxiang.1688.com/page/offerlist.htm"
+
 
 def get_html(url, useragent=None, proxy=None):
     r = requests.get(url, headers=useragent, proxies=proxy)
@@ -26,19 +27,27 @@ def get_data_price(href):
     soup = BeautifulSoup(data, 'lxml')
     return soup
 
-def get_img(url, time, name="imgfolder"):
-    response = requests.get(url)
-    if response.status_code == 200:
-        with open(os.path.abspath(name+"/"+str(time)+".png"), 'wb') as f:
-            f.write(response.content)
+def get_img(image, name="imgfolder"):
+    print(image)
+    for i in image:
+        urls = i.split('/')[-1].split('.')[0]
+        # print(urls)
+        response = requests.get(i)
+        if response.status_code == 200:
+            with open(os.path.abspath(name+"/"+datetime.now().strftime('%H%M%S')+".jpg"), 'wb') as f:
+                time.sleep(1)
+                f.write(response.content)
 
-def edit_excel(excel, path="fold"):
+
+def edit_excel(excel, path="fold", count=1):
     img_m = []
-    for i in range(1, 17):
-        png_loc1 = os.path.abspath(str(path)+"/" + str(i) + ".png")
-        xfile = openpyxl.load_workbook(excel)
+    xfile = openpyxl.load_workbook(excel)
+    sheet_ranges = xfile['Worksheet']
+    sheet_ranges.column_dimensions['A'].width = 30
+    for i in range(1, int(count)+1):
+        sheet_ranges.row_dimensions[i].height = 70
+        png_loc1 = os.path.abspath(str(path)+"/" + str(i) + ".jpg")
         ws = xfile.active
-        # sheet = xfile.get_sheet_by_name('Sheet')
         img = openpyxl.drawing.image.Image(png_loc1)
         img_m.append(img)
         img.anchor(ws.cell('A' + str(i)))
@@ -75,25 +84,24 @@ def get_page_html(html, nfile, name_img=None):
     soup = BeautifulSoup(html, 'lxml')
     ads = soup.find('ul', class_='offer-list-row').find_all('li', class_='offer-list-row-offer')
     time = 1
-
+    all_image = []
 
     for ad in ads:
         print(str(time)+" товар")
-        price_add = []
+        price_add = ['img']
+
 
         try:
           image_href = ad.find('div', class_='image').find('a').get('href')
           data_image = get_data_price(image_href)
           #Получили ссылку на img
           image = data_image.find('a', class_='box-img').find('img').get('src')
-          #Скачиваем картинки
-          get_img(image, time, name_img)
           price_add.append(image)
-
-
+          all_image.append(image)
         except:
-          image = "nothing"
+          image = "None"
           price_add.append(image)
+
 
         try:
             title = ad.find('div', class_='title-new').find('a').text
@@ -117,13 +125,16 @@ def get_page_html(html, nfile, name_img=None):
                         price_ad = price.find('span', class_='value').text
                         price_add.append(price_ad)
                     except:
-                        price_ad = "none"
+                        price_ad = "None"
 
         except:
             price_href = "None"
+
         time+=1
         write_csv(price_add, nfile)
-
+    # Скачиваем картинки
+    get_img(all_image, name_img)
+    print(len(all_image))
 
 
 def main():
@@ -141,10 +152,10 @@ def main():
             if xls_f == 'xlsx' or xls_f == 'xls' or xls_f  =='xlsm' or xls_f == 'xltm':
                 print("У Вас есть файлы excel  "+"'"+xls_f+"'")
                 name_xls = input("Введите название файла xls: ")
+                count = input("Введите количество строк в файле: ")
                 name_folder = input("Введите название папки img который вы хотет записать в файл: ")
                 folds = os.path.abspath(name_folder)
                 img = os.listdir(folds)
-                print(img)
                 if not os.path.exists(folds+'_resize'):
                     os.makedirs(os.path.abspath(folds+'_resize'))
                 else:
@@ -153,10 +164,12 @@ def main():
                 if len(img) > 0:
                     [img_resize.append(i) for i in img]
 
-                for i in img_resize:
-                    print(i)
-                    resize_image(input_image_path=folds+'/'+i, output_image_path=folds+'_resize'+'/'+i, size=(70, 70))
-                edit_excel(name_xls, folds+'_resize')
+
+                for num,i in enumerate(sorted(img_resize)):
+                    num+=1
+                    numb = str(num)+".jpg"
+                    resize_image(input_image_path=folds+'/'+i, output_image_path=folds+'_resize'+'/'+numb, size=(70, 70))
+                edit_excel(name_xls, folds+'_resize', count)
         exit()
 
     folder = input("Введите название папки для картинок: ")
@@ -186,8 +199,8 @@ def main():
     page = "?&pageNum="
     total_page = int(page_input)
     # proxys = open('proxy.txt').read().split('\n')
-
-    for i in range(0, total_page):
+    total_page+=1
+    for i in range(1, total_page):
         r = random.randint(2, 9) / 2.5
 
         try:
@@ -201,8 +214,7 @@ def main():
             get_html2 = get_html(url_gen, useragent_s, proxy_s)
             get_page_html(get_html2, file, folder)
             time.sleep(r)
-            pg = i+1
-            print("Закончили " + str(pg) + " стр.")
+            print("Закончили " + str(i) + " стр.")
 
 
         except:
